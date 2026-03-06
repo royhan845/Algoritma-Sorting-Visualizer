@@ -36,10 +36,12 @@ const CODE_DATA: any = {
 
 export default function CodeViewer({ stepHistory, algorithm }: { stepHistory: string[], algorithm: string }) {
   const [activeTab, setActiveTab] = useState("KODE");
-  const logEndRef = useRef<HTMLDivElement>(null);
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
-    if (activeTab === "LANGKAH" && logEndRef.current) {
-      logEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (activeTab === "LANGKAH" && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   }, [stepHistory, activeTab]);
 
@@ -49,7 +51,8 @@ export default function CodeViewer({ stepHistory, algorithm }: { stepHistory: st
         <button onClick={() => setActiveTab("KODE")} className={`flex-1 font-bold py-2 border-r-2 sm:border-r-4 border-black uppercase text-xs sm:text-sm ${activeTab === "KODE" ? "bg-[#4ade80]" : "hover:bg-gray-200"}`}>[ KODE ]</button>
         <button onClick={() => setActiveTab("LANGKAH")} className={`flex-1 font-bold py-2 uppercase text-xs sm:text-sm ${activeTab === "LANGKAH" ? "bg-[#fef08a]" : "hover:bg-gray-200"}`}>[ LANGKAH ]</button>
       </div>
-      <div className="overflow-y-auto flex-1 custom-scrollbar p-3 sm:p-4">
+      
+      <div ref={scrollContainerRef} className="overflow-y-auto flex-1 custom-scrollbar p-3 sm:p-4">
         {activeTab === "KODE" ? (
           <pre className="text-xs sm:text-sm text-white leading-loose">{CODE_DATA[algorithm]}</pre>
         ) : (
@@ -58,7 +61,6 @@ export default function CodeViewer({ stepHistory, algorithm }: { stepHistory: st
             {stepHistory.map((step, idx) => (
               <p key={idx} className={`${step.includes('SWAP') || step.includes('TUKAR') ? 'text-[#ef4444]' : step.includes('AWAL') || step.includes('SELESAI') ? 'text-[#4ade80] font-bold' : step.includes('Array sementara') ? 'text-[#fef08a] mt-1 mb-2 border-b border-gray-600 pb-1' : 'text-gray-300'}`}>{step}</p>
             ))}
-            <div ref={logEndRef} /> 
           </div>
         )}
       </div>

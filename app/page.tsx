@@ -10,21 +10,29 @@ import TerminalLog from "@/components/TerminalLog";
 import AlgorithmInfo from "@/components/AlgorithmInfo";
 import CodeViewer from "@/components/CodeViewer";
 
+const generateDefaultArray = () => {
+  return Array.from({ length: 10 }, (_, i) => ({
+    id: `default-${i}`,
+    value: 0
+  }));
+};
+
 export default function Home() {
-  const [arrayData, setArrayData] = useState<{id: string, value: number}[]>([]);
+  const [arrayData, setArrayData] = useState<{id: string, value: number}[]>(generateDefaultArray());
   const [isSorting, setIsSorting] = useState(false);
   const [activeIndices, setActiveIndices] = useState<number[]>([]);
-  const [status, setStatus] = useState("SISTEM SIAP. Silakan acak data atau mulai sorting.");
+  const [status, setStatus] = useState("SISTEM SIAP. Silakan klik [ ACAK ] atau masukkan angka.");
   
   const [comparisons, setComparisons] = useState(0);
   const [swaps, setSwaps] = useState(0);
   const [stepHistory, setStepHistory] = useState<string[]>([]);
   const [algorithm, setAlgorithm] = useState("BUBBLE"); 
-  
   const [customInput, setCustomInput] = useState("");
   
   const [speedUI, setSpeedUI] = useState(400); 
   const speedRef = useRef(400); 
+
+  const vizRef = useRef<HTMLDivElement>(null);
 
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSpeed = parseInt(e.target.value);
@@ -33,6 +41,11 @@ export default function Home() {
   };
 
   const addStep = (text: string) => setStepHistory((prev) => [...prev, text]);
+
+  useEffect(() => { 
+    setStatus("SISTEM SIAP. Silakan klik [ ACAK ] atau masukkan angka lalu [ SET ].");
+    setStepHistory(["[ SISTEM SIAP ] Menunggu input data..."]);
+  }, []);
 
   const generateRandomArray = () => {
     if (isSorting) return;
@@ -46,19 +59,16 @@ export default function Home() {
     setComparisons(0);
     setSwaps(0);
     setStepHistory([`[ AWAL ] Array Acak: [${newArray.map(a => a.value).join(", ")}]`]);
-    setCustomInput("");
+    setCustomInput(newArray.map(a => a.value).join(", "));
   };
 
   const handleSetCustomData = () => {
     if (isSorting) return;
-
-    // 1. Bersihkan input dan ubah ke array angka (Batas dilonggarkan sampai 999)
     let parsed = customInput
       .split(',')
       .map((s) => parseInt(s.trim()))
       .filter((n) => !isNaN(n) && n > 0 && n <= 999);
 
-    // 2. Validasi jumlah
     if (parsed.length < 2) {
       setStatus("> ERROR: Masukkan minimal 2 angka valid (1-999), pisahkan dengan koma.");
       return;
@@ -68,7 +78,6 @@ export default function Home() {
       parsed = parsed.slice(0, 15);
     }
 
-    // 3. Jadikan Balok 3D
     const newArray = parsed.map((val) => ({
       id: Math.random().toString(36).substring(2, 9),
       value: val
@@ -81,8 +90,6 @@ export default function Home() {
     setSwaps(0);
     setStepHistory([`[ AWAL ] Array Manual: [${parsed.join(", ")}]`]);
   };
-
-  useEffect(() => { generateRandomArray(); }, []);
 
   const sleep = () => new Promise((resolve) => setTimeout(resolve, speedRef.current));
 
@@ -157,9 +164,27 @@ export default function Home() {
     }
   };
 
+  const scrollToVisualization = () => {
+    setTimeout(() => {
+      if (vizRef.current) {
+        const yOffset = -20; 
+        const y = vizRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 150);
+  };
+
   const runAlgorithm = async () => {
     if (isSorting) return;
+    
+    if (arrayData.every(d => d.value === 0)) {
+      setStatus("> ERROR: Data masih kosong! Silakan klik [ ACAK ] atau isi manual lalu [ SET ].");
+      return;
+    }
+
     setIsSorting(true);
+    scrollToVisualization();
+
     if (algorithm === "BUBBLE") await bubbleSort();
     else if (algorithm === "SELECTION") await selectionSort();
     setActiveIndices([]);
@@ -183,7 +208,13 @@ export default function Home() {
         algorithm={algorithm}
         onAlgorithmChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
           setAlgorithm(e.target.value);
-          generateRandomArray(); 
+          setArrayData(generateDefaultArray()); 
+          setCustomInput("");
+          setComparisons(0);
+          setSwaps(0);
+          setActiveIndices([]);
+          setStatus(`ALGORITMA DIUBAH KE: ${e.target.value} SORT. Silakan isi data baru.`);
+          setStepHistory([`[ SISTEM SIAP ] Menunggu input data...`]);
         }}
         customInput={customInput}
         onCustomInputChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomInput(e.target.value)}
@@ -192,18 +223,15 @@ export default function Home() {
 
       <AlgorithmInfo comparisons={comparisons} swaps={swaps} algorithm={algorithm} />
 
-      <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mb-4">
-        <div className="h-[50vh] w-full lg:w-2/3 border-4 border-black bg-[#1e1e2f] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+      <div ref={vizRef} className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mb-4">
+        <div className="h-[50vh] w-full lg:w-2/3 border-2 sm:border-4 border-black bg-[#1e1e2f] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-10">
           <Canvas camera={{ position: [0, 12, 18], fov: 45 }}>
             <Suspense fallback={null}>
               <ambientLight intensity={0.6} />
               <directionalLight position={[10, 10, 10]} intensity={1.5} />
               
               {(() => {
-                // 1. Cari nilai paling besar di array saat ini (minimal 1 agar tidak error dibagi 0)
                 const maxVal = Math.max(...arrayData.map(d => d.value), 1);
-                
-                // 2. Render balok dan kirimkan maxVal ke masing-masing komponen SortBlock
                 return arrayData.map((item, index) => (
                   <SortBlock 
                     key={item.id} 
@@ -212,6 +240,7 @@ export default function Home() {
                     totalBlocks={arrayData.length} 
                     isActive={activeIndices.includes(index)} 
                     maxValue={maxVal} 
+                    isSorting={isSorting} 
                   />
                 ));
               })()}
@@ -225,11 +254,10 @@ export default function Home() {
       </div>
 
       <TerminalLog status={status} />
-
+      
       <footer className="mt-8 mb-2 text-center text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest border-t-2 border-dashed border-gray-400 pt-4 w-full max-w-5xl">
         &copy; {new Date().getFullYear()} ALGO-VISUALIZER 3D • DIBANGUN DENGAN NEXT.JS & THREE.JS
       </footer>
-
     </main>
   );
 }
