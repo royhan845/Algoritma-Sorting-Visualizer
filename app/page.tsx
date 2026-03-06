@@ -169,8 +169,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[#e2e8f0] font-mono">
-      <h1 className="text-4xl font-bold mb-4 text-center tracking-widest text-[#0f172a] uppercase border-4 border-black px-4 py-2 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    <main className="min-h-screen w-full flex flex-col items-center justify-center p-4">
+      <h1 className="text-2xl sm:text-4xl font-bold mb-4 text-center tracking-widest text-[#0f172a] uppercase border-2 sm:border-4 border-black px-3 py-1 sm:px-4 sm:py-2 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         Algo-Visualizer 3D
       </h1>
       
@@ -225,6 +225,11 @@ export default function Home() {
       </div>
 
       <TerminalLog status={status} />
+
+      <footer className="mt-8 mb-2 text-center text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest border-t-2 border-dashed border-gray-400 pt-4 w-full max-w-5xl">
+        &copy; {new Date().getFullYear()} ALGO-VISUALIZER 3D • DIBANGUN DENGAN NEXT.JS & THREE.JS
+      </footer>
+
     </main>
   );
 }
