@@ -39,6 +39,7 @@ export default function CodeViewer({ stepHistory, algorithm }: { stepHistory: st
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
+  // Fungsi Auto-Scroll ke Langkah Terbaru
   useEffect(() => {
     if (activeTab === "LANGKAH" && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;

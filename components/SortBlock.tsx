@@ -4,15 +4,17 @@ import { Text } from "@react-three/drei";
 import { animated, useSpring } from "@react-spring/three";
 
 export default function SortBlock({ value, index, totalBlocks, isActive, maxValue, isSorting }: any) {
+  // Logika Ukuran Balok
   const MAX_VISUAL_HEIGHT = 10;
   const safeMaxValue = Math.max(maxValue, 1); 
-  
   const visualHeight = value === 0 ? 0.2 : (value / safeMaxValue) * MAX_VISUAL_HEIGHT;
 
+  // Koordinat 3D Balok
   const posX = index - totalBlocks / 2 + 0.5;
   const posY = visualHeight / 2; 
   const posZ = isActive ? 1.5 : 0; 
 
+  // Logika Warna Balok
   const hue = Math.floor((value / safeMaxValue) * 250);
 
   let blockColor = `hsl(${hue}, 80%, 60%)`;
@@ -22,6 +24,7 @@ export default function SortBlock({ value, index, totalBlocks, isActive, maxValu
     blockColor = `hsl(0, 100%, 60%)`;
   }
 
+  // Animasi dengan react-spring
   const springs = useSpring({
     position: [posX, posY, posZ] as [number, number, number], 
     color: blockColor,

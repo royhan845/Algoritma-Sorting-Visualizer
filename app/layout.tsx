@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+// Setup Metadata Web
 export const metadata: Metadata = {
   title: "Algo-Visualizer 3D",
   description: "Visualisasi Algoritma Interaktif bergaya Retro Neo-Brutalism.",
 };
 
+// Set Font Mono & Background Grid Retro
 export default function RootLayout({
   children,
 }: Readonly<{

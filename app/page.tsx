@@ -10,6 +10,7 @@ import TerminalLog from "@/components/TerminalLog";
 import AlgorithmInfo from "@/components/AlgorithmInfo";
 import CodeViewer from "@/components/CodeViewer";
 
+// Array default (nilai 0)
 const generateDefaultArray = () => {
   return Array.from({ length: 10 }, (_, i) => ({
     id: `default-${i}`,
@@ -18,6 +19,7 @@ const generateDefaultArray = () => {
 };
 
 export default function Home() {
+  // State Management
   const [arrayData, setArrayData] = useState<{id: string, value: number}[]>(generateDefaultArray());
   const [isSorting, setIsSorting] = useState(false);
   const [activeIndices, setActiveIndices] = useState<number[]>([]);
@@ -34,19 +36,25 @@ export default function Home() {
 
   const vizRef = useRef<HTMLDivElement>(null);
 
+  
+  // Fungsi untuk Mengubah Kecepatan Animasi
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSpeed = parseInt(e.target.value);
     setSpeedUI(newSpeed);
     speedRef.current = newSpeed;
   };
 
+  
+  // Fungsi untuk Menambahkan Langkah dalam Log
   const addStep = (text: string) => setStepHistory((prev) => [...prev, text]);
 
+  // Inisialisasi Status Awal
   useEffect(() => { 
     setStatus("SISTEM SIAP. Silakan klik [ ACAK ] atau masukkan angka lalu [ SET ].");
     setStepHistory(["[ SISTEM SIAP ] Menunggu input data..."]);
   }, []);
 
+  // Fungsi Generate Array Acak
   const generateRandomArray = () => {
     if (isSorting) return;
     const newArray = Array.from({ length: 10 }, () => ({
@@ -62,6 +70,7 @@ export default function Home() {
     setCustomInput(newArray.map(a => a.value).join(", "));
   };
 
+  // Fungsi Set Data Manual
   const handleSetCustomData = () => {
     if (isSorting) return;
     let parsed = customInput
@@ -91,8 +100,10 @@ export default function Home() {
     setStepHistory([`[ AWAL ] Array Manual: [${parsed.join(", ")}]`]);
   };
 
+  // Fungsi Jeda untuk Animasi
   const sleep = () => new Promise((resolve) => setTimeout(resolve, speedRef.current));
 
+  // Logika Algoritma Bubble Sort
   const bubbleSort = async () => {
     setStatus("MEMULAI BUBBLE SORT...");
     addStep("\n[ MEMULAI BUBBLE SORT ]");
@@ -124,6 +135,8 @@ export default function Home() {
     }
   };
 
+  
+  // Logika Algoritma Selection Sort
   const selectionSort = async () => {
     setStatus("MEMULAI SELECTION SORT...");
     addStep("\n[ MEMULAI SELECTION SORT ]");
@@ -164,6 +177,7 @@ export default function Home() {
     }
   };
 
+  // Fungsi Auto-Scroll ke Visualisasi 3D
   const scrollToVisualization = () => {
     setTimeout(() => {
       if (vizRef.current) {
@@ -174,6 +188,7 @@ export default function Home() {
     }, 150);
   };
 
+  // Fungsi untuk Menjalankan Algoritma Sorting
   const runAlgorithm = async () => {
     if (isSorting) return;
     
